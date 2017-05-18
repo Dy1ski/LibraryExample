@@ -8,16 +8,21 @@ package studentbookborrowing;
 //import java.util.Random ~ come back to this
 
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class Librarian extends Thread {
     
    Shelf Bookshelf;
    int reStocking;
+   Semaphore Permission;
+   Semaphore passOnPermission;
    
-    public Librarian (Shelf Bookshelf, int reStocking)
+    public Librarian (Shelf Bookshelf, int reStocking, Semaphore Permission, Semaphore passOnPermission)
     {
         this.Bookshelf = Bookshelf;
         this.reStocking = reStocking;
+        this.Permission = Permission;
+        this.passOnPermission = passOnPermission;
     }
     
     void stocking()
@@ -38,6 +43,8 @@ public class Librarian extends Thread {
         {
             while(true)
             {
+                Permission.acquire();
+                 System.out.println("Librarian Lock has been applied");
                 if(Bookshelf.shelfFull())
                 {
                     Thread.sleep(2);
@@ -46,8 +53,9 @@ public class Librarian extends Thread {
                 this.stocking();
                 System.out.println("Library Status after Librarian Finishes Stocking");
                 Bookshelf.bookList();
-            
-            }
+                passOnPermission.release();
+                System.out.println("Librarian Lock has been released");
+            }   
         }
         catch(Exception tr)
         {}

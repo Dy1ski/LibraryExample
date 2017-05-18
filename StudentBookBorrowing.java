@@ -9,6 +9,8 @@ package studentbookborrowing;
  *
  * @author dylan
  */
+import java.util.concurrent.Semaphore;
+
 public class StudentBookBorrowing {
 
     /**
@@ -19,9 +21,12 @@ public class StudentBookBorrowing {
         int readingTime = 1000;
         int restockingTime = 1000;
         
-        Shelf shelf = new Shelf(Avaliable_Books);
-        Librarian lib = new Librarian(shelf, restockingTime);
-        Students stu = new Students(shelf, readingTime);
+        Semaphore librarianPermission = new Semaphore(1);
+        Semaphore StudentPermission = new Semaphore(0);
+        
+        Shelf shelf = new Shelf(Avaliable_Books); // buffer
+        Librarian lib = new Librarian(shelf, restockingTime, librarianPermission, StudentPermission); // producer
+        Students stu = new Students(shelf, readingTime, StudentPermission, librarianPermission); // consumer
         
         lib.start();
         stu.start();
